@@ -1,5 +1,4 @@
 shopping(K, LP):- addProducts(N), between(1, K, M), subsetOfSize(M, N, LN), exactNNut(LN), getP(LN, LP).
-shopping(_, _):- !.
 
 exactNNut(LN):- insInL(LN, L), length(L, N1), numNutrients(N1).
 
