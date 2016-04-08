@@ -31,14 +31,14 @@ round(R):- between(1,15,R).
 tvMatch(S-T):- tvTeams(TV), member(S,TV), member(T,TV), S\=T.
 
 %%%%%%  Variables: It is mandatory to use these variables!
-% match-S-T-R    meaning  "match S-T (at home of T is on round R"
+% match-S-T-R    meaning  "match S-T (at home of S is on round R"
 % home-S-R       meaning  "team S plays at home on round R"
 % double-S-R     meaning  "team S has a double on round R"
 
 
 writeClauses:- 
-    defineHome,
-    ...
+    defineHome.
+    %...
 
 defineHome:- team(T), round(R), findall( match-T-S-R, matchOfT(T,T-S), Lits ), expressOr( home-T-R, Lits ), fail.
 defineHome.
