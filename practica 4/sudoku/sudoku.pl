@@ -21,7 +21,7 @@ row(I):-between(1,9,I).
 col(J):-between(1,9,J).
 val(K):-between(1,9,K).
 blockID(Iid,Jid):- member(Iid,[0,1,2]), member(Jid,[0,1,2]).  %there are 9 blocks: 0-0, 1-0, ... ,2-2
-squareOfBlock( Iid,Jid, I,J ):- row(I), col(J),  Iid is (I-1) // 3,  Jid is (J-1) // 3.
+squareOfBlock( Iid, Jid, I, J):- row(I), col(J),  Iid is (I-1) // 3,  Jid is (J-1) // 3.
 
 %%%%%%  Variables: 
 % x-i-j-k meaning "square IJ gets value K",    1<=i<=9, 1<=j<=9, 1<=k<=9   9^3= 729 variables
