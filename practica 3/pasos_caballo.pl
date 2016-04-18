@@ -5,7 +5,7 @@ camino( EstadoActual, EstadoFinal, CaminoHastaAhora, CaminoTotal, N, P, PMAX):-
   camino( EstSiguiente, EstadoFinal, [EstSiguiente|CaminoHastaAhora], CaminoTotal, N, NP, PMAX ).
 
 solucionOptima:-
-camino([0, 0], [3, 3], [[0, 0]], C, 4, 0, 2), %-estado: [P ini,P fi]. Vars auxiliares: N tablero, P pasosHastaAhora, P MaximoPasos]
+camino([0, 0], [3, 2], [[0, 0]], C, 4, 1, 4), %-estado: [P ini,P fi]. Vars aux: NxN tablero, P pasosHastaAhora, P MaximoPasos]
 write(C), !.
 
 constraint(N, NX, NY):- NX >= 0, NX =< N - 1, NY >= 0, NY =< N - 1.
