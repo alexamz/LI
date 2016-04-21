@@ -1,7 +1,6 @@
 :-dynamic(varNumber/3).
 symbolicOutput(0). % set to 1 to see symbolic output only; 0 otherwise.
 
-
 % Extend this Prolog source to design a Voleyball League with 16
 % teams, named x01 ... x16, with 15 rounds (playing days), where every
 % two teams play against each other exactly once (one team at home and
@@ -11,35 +10,24 @@ symbolicOutput(0). % set to 1 to see symbolic output only; 0 otherwise.
 % plays away on rounds N-1 and on round N.
 % Additional constraints:
 %  1. No team gets more than one double in the whole League             DONE
-%  2. No doubles on certain rounds                                      DONE  
+%  2. No doubles on certain rounds                                      DONE!!!!! 
 %  3. Canal+ has bought the tv rights for Saturday Night 8pm for all
 %     matches among a group of teams (the so-called tvTeams) and wants
 %     all matches among these teams on different rounds (i.e., no two
-%     of them on the same round).                                       TO DO
+%     of them on the same round).                                       DONE
 
 %%%%%%%%%%%%%%%%%%%%% toy input example:
 
-%% teams([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, x13, x14, x15, x16]). %the team names
-%% noDoubles([2, 15]).                  %no doubles on these rounds
-%% tvTeams([x01, x02, x03, x04, x05, x06]). %all matches between these teams on different rounds
-
-teams([x01, x02, x03, x04, x05, x06, x07, x08]). %the team names
-noDoubles([2]).                  %no doubles on these rounds
-tvTeams([x01, x02, x03, x04]). %all matches between these teams on different rounds
-
-
-
+teams([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, x13, x14, x15, x16]). %the team names
+noDoubles([2, 15]).                  %no doubles on these rounds
+tvTeams([x01, x02, x03, x04, x05, x06]). %all matches between these teams on different rounds
 
 %%%%%% Some helpful definitions to make the code cleaner:
 team(T):- teams(Ts), member(T,Ts).
 matchOfT(T, T-S):- team(S), S\=T.
 matchOfT(T, S-T):- team(S), S\=T.
-round(R):- between(1, 7,R).
-%% roundRestrictionDouble(R):- between(1, 15, R), noDoublesRestriction(R).
+round(R):- between(1, 15,R).
 tvMatch(S-T):- tvTeams(TV), member(S,TV), member(T,TV), S\=T.
-doubleConstraint(R, T, [home-T-R, home-T-R1]):- R > 1, R1 is R - 1.
-
-%% noDoublesRestriction(R):- noDoubles(L), \+ member(R, L), R1 is R - 1, \+ member(R1, L).
 
 %%%%%%  Variables: It is mandatory to use these variables!
 % match-S-T-R    meaning  "match S-T (at home of S is on round R"
@@ -49,44 +37,32 @@ doubleConstraint(R, T, [home-T-R, home-T-R1]):- R > 1, R1 is R - 1.
 
 writeClauses:-
     defineHome,
-    eachTexactlyOneS,
-    playJustOnce,
-    %% defineDouble,
-    %% eachTAtmostDouble,
-    %% defineNoDoubles,
+    defineDouble,
+    defineNoDoubles,
     defineTVMatch,
+    eachMatchExactlyOneR,
+    eachTexactlyOneS,
+    eachTAtmostOneDouble,
     true.
-    %...
+
 
 defineHome:- team(T), round(R), findall(match-T-S-R, matchOfT(T, T-S), Lits), expressOr(home-T-R, Lits), fail.
 defineHome.
 
-defineDouble:- team(T), round(R), R > 1, R1 is R - 1, expressAnd(double-T-R, [home-T-R, home-T-R1]), fail.
-defineDouble.
-
 eachMatchExactlyOneR:- round(R), team(T), findall(match-T1-S-R, matchOfT(T, T1-S), Lits), exactly(1, Lits), fail.
 eachMatchExactlyOneR.
-
-playJustOnce:- 
-    team(T),
-    round(R), 
-    findall(match-T-S-R, matchOfT(T, T-S) , Home), 
-    findall(match-S-T-R, matchOfT(T, T-S) , Visitor),
-    union(Home, Visitor, Lits), 
-    exactly(1,Lits),
-    fail.
-playJustOnce.
-
-%% eachMatchExactlyOneR:- round(R), team(T), findall(match-T1-S-R, matchOfT(T, T1-S), Lits), exactly(1, Lits), fail.
-%% eachMatchExactlyOneR.
 
 eachTexactlyOneS:- team(T), matchOfT(T, T-S), compareTeams(T, S), findAllTexactOneS(T, S, Lits), exactly(1, Lits), fail.
 eachTexactlyOneS.
 
-eachTAtmostDouble:- team(T), findall(double-T-R, round(R), Lits), atMost(1, Lits), fail.
-eachTAtmostDouble.
+defineDouble:- team(T), round(R), R > 1, R1 is R - 1, writeClause([double-T-R, home-T-R, home-T-R1]),
+                writeClause([double-T-R, \+home-T-R, \+home-T-R1]), fail. 
+defineDouble.
 
-defineNoDoubles:- team(T), round(R), expressOr(\+double-T-R, [home-T-2, home-T-1]), fail.%, expressAnd(double-T-R, [home-T-15, home-T-14]), fail.
+eachTAtmostOneDouble:- team(T), findall(double-T-R, round(R), Lits), atMost(1, Lits), fail.
+eachTAtmostOneDouble.
+
+defineNoDoubles:- noDoubles(L), select(R, L, _), team(T), writeClause([\+double-T-R]), fail. 
 defineNoDoubles.
 
 defineTVMatch:- round(R), findall(match-T-S-R, tvMatch(S-T), Lits), exactly(1, Lits), fail.
@@ -94,11 +70,11 @@ defineTVMatch.
 
 
 
-
 findAllTexactOneS(T, S, Lits):- findall(match-T-S-R, round(R), Lits1), 
-    findall(match-S-T-R, round(R), Lits2), union(Lits1, Lits2, Lits).
+    findall(match-S-T-R, round(R), Lits2), append(Lits1, Lits2, Lits).
 
-compareTeams(X, Y):- sub_atom(X, 1, 2, _, SS1), sub_atom(Y, 1, 2, _, SS2), atom_number(SS1, S1), atom_number(SS2, S2), S1 < S2.
+compareTeams(X, Y):- sub_atom(X, 1, 2, _, SS1), sub_atom(Y, 1, 2, _, SS1). %, atom_number(SS1, S1), atom_number(SS2, S2), S1 < S2.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% show the solution. Here M contains the literals that are true in the model:
@@ -116,16 +92,7 @@ writeH(_,_,_):- write('.'),!.
 
 % Express that Var is equivalent to the disjunction of Lits:
 expressOr( Var, Lits ):- member(Lit,Lits), negate(Lit,NLit), writeClause([ NLit, Var ]),  fail.
-expressOr( Var, Lits ):- negate(Var,NVar), writeClause([ NVar | Lits ]),!.
-
-expressAnd( Var, Lits):- negate(Var, NVar), member(Lit, Lits), writeClause([NVar, Lit]), fail.
-expressAnd( Var, Lits):- negateAll(Lits, NLits), writeClause([Var | NLits]),!.
-
-%expressOr( Var, Lits ):- member(Lit,Lits), negate(Lit,NLit), writeClause([ NLit, Var ]),  fail.
-%expressOr( Var, Lits ):- negate(Var,NVar),  writeClause([ NVar | Lits ]),!.
-
-%expressAnd( Var, Lits):- negate(Var, NVar), member(Lit, Lits), write(NVar), write(Lit), nl, writeClause([NVar, Lit]), fail.
-%expressAnd( Var, Lits):- negateAll(Lits, NLits), write([Var|NLits]), nl, writeClause([Var | NLits]),!.
+expressOr( Var, Lits ):- negate(Var,NVar),  writeClause([ NVar | Lits ]),!.
 
 %%%%%% Cardinality constraints on arbitrary sets of literals Lits:
 
