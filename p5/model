@@ -1,0 +1,9 @@
+c PicoSAT SAT Solver Version 960
+c Copyright (c) 2006 - 2014 Armin Biere JKU Linz
+c /usr/bin/clang -pipe -Os -arch x86_64
+c
+c using 2 as default phase
+c
+c parsing infile.cnf
+c parsed header 'p cnf 238 1588'
+infile.cnf:15: expected number

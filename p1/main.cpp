@@ -196,10 +196,10 @@ int main(){
             if ( decisionLevel == 0) {
                 end = chrono::system_clock::now();
                 chrono::duration<double> elapsed_seconds = end - start;
-                cout << "s UNSATISFIABLE" << endl;
-                cout << "c " << decisions << " decisions" << endl;
-                cout << "c " << elapsed_seconds.count() << " seconds total run time" << endl;
-                cout << "c " << (propagations/elapsed_seconds.count()/1e6) << " megaprops/second" << endl;
+                cout << "UNSATISFIABLE" << endl;
+                cout << decisions << " decisions" << endl;
+                cout << elapsed_seconds.count() << " seconds total run time" << endl;
+                cout << (propagations/elapsed_seconds.count()/1e6) << " megaprops/second" << endl;
                 return 10;
             }
             backtrack();
@@ -210,10 +210,10 @@ int main(){
             checkmodel();
             end = chrono::system_clock::now();
             chrono:: duration<double> elapsed_seconds = end - start;
-            cout << "s SATISFIABLE" << endl;
-            cout << "c " << decisions << " decisions" << endl;
-            cout << "c " << elapsed_seconds.count() << " seconds total run time" << endl;
-            cout << "c " << (propagations/elapsed_seconds.count()/1e6) << " megaprops/second" << endl;
+            cout << "SATISFIABLE" << endl;
+            cout << decisions << " decisions" << endl;
+            cout << elapsed_seconds.count() << " seconds total run time" << endl;
+            cout << (propagations/elapsed_seconds.count()/1e6) << " megaprops/second" << endl;
             return 20;
         }
         // start new decision level:
