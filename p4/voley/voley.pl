@@ -73,7 +73,7 @@ defineTVMatch.
 findAllTexactOneS(T, S, Lits):- findall(match-T-S-R, round(R), Lits1), 
     findall(match-S-T-R, round(R), Lits2), append(Lits1, Lits2, Lits).
 
-compareTeams(X, Y):- sub_atom(X, 1, 2, _, SS1), sub_atom(Y, 1, 2, _, SS1). %, atom_number(SS1, S1), atom_number(SS2, S2), S1 < S2.
+compareTeams(X, Y):- sub_atom(X, 1, 2, _, SS1), sub_atom(Y, 1, 2, _, SS2), atom_number(SS1, S1), atom_number(SS2, S2), S1 < S2.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%

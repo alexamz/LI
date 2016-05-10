@@ -43,6 +43,7 @@ student(S):- students(N), between(1,N,S).
 room(R):-    rooms(N), between(1,N,R).
 day(D):-     between(1,5,D).
 hour(H):-    between(1,5,H).
+roomCourse(R, C):- course(C), courseRooms(C, L), member(R, L).
 
 %%%%%%  Variables: It is mandatory to use these variables!
 % courseHour-C-D-H   meaning "course C is given on day D at hour H"
@@ -52,34 +53,42 @@ hour(H):-    between(1,5,H).
 out(Lits):- write(Lits), nl.
 
 writeClauses:- 
-    %% eachCexactlyOneR,
+    eachCexactlyOneR,
     eachCExactly3HoursAtWeek,
-    %% eachCatMostOneHourAtDay,
-    %% eachHatMostOneCAtDay,
-    %% eachSatMost3HoursAtDay,
-    %% defineLateD,
+    eachCatMostOneHourAtDay,
+    eachHatMostTwoCAtDay,
+    eachHatMostOneCAtRoom,
+    eachSatMost3HoursAtDay,
+    eachSatMost1courseAtHour,
+    defineLateD,
     %% defineNoLateD,
     true.
 
 eachCexactlyOneR:- course(C), courseRooms(C, L), findall(courseRoom-C-R, select(R, L, _), Lits), exactly(1, Lits), false.
 eachCexactlyOneR.
 
-eachCExactly3HoursAtWeek:- course(C), findall(courseHour-C-D-H, (hour(H), day(D)), Lits), exactly(3, Lits), false.
+eachCExactly3HoursAtWeek:- course(C), findall(courseHour-C-D-H, ( day(D), hour(H)), Lits), exactly(3, Lits), false.
 eachCExactly3HoursAtWeek.
 
 eachCatMostOneHourAtDay:- course(C), day(D), findall(courseHour-C-D-H, hour(H), Lits), atMost(1, Lits), false.
 eachCatMostOneHourAtDay.
 
-eachHatMostOneCAtDay:- day(D), hour(H), findall(courseHour-C-D-H, course(C), Lits), atMost(1, Lits), false.
-eachHatMostOneCAtDay.
+eachHatMostTwoCAtDay:- day(D), hour(H), findall(courseHour-C-D-H, course(C), Lits), atMost(2, Lits), false.
+eachHatMostTwoCAtDay.
+
+eachHatMostOneCAtRoom:- day(D), hour(H), room(R), findall(courseHour-C-D-H, roomCourse(R, C), Lits), atMost(1, Lits), false.
+eachHatMostOneCAtRoom.
 
 eachSatMost3HoursAtDay:- student(S), student(S, L), day(D), findall(courseHour-C-D-H, (select(C, L, _), hour(H)), Lits), atMost(3, Lits), fail.
 eachSatMost3HoursAtDay.
 
-defineLateD:-day(D), course(C), writeClause([late-D, \+courseHour-C-D-5]), fail.
+eachSatMost1courseAtHour:- student(S), student(S, L), day(D), hour(H), findall(courseHour-C-D-H, ( select(C, L, _)), Lits), atMost(1, Lits), fail.
+eachSatMost1courseAtHour.
+
+defineLateD:- day(D), course(C), writeClause([late-D, \+courseHour-C-D-5]), fail.
 defineLateD.
 
-defineNoLateD:-day(D), writeClause([\+late-D]), fail.
+defineNoLateD:- day(D), writeClause([\+late-D]), fail.
 defineNoLateD.
 
 %% eachMatchExactlyOneR:- team(T), team(S), T \= S, findall(match-T-S-R, round(R), Home),
