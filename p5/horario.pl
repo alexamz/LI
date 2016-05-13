@@ -61,7 +61,7 @@ writeClauses:-
     eachSatMost3HoursAtDay,
     eachSatMost1courseAtHour,
     defineLateD,
-    %% defineNoLateD,
+    defineNoLateD,
     true.
 
 eachCexactlyOneR:- course(C), courseRooms(C, L), findall(courseRoom-C-R, select(R, L, _), Lits), exactly(1, Lits), false.
@@ -88,20 +88,8 @@ eachSatMost1courseAtHour.
 defineLateD:- day(D), course(C), writeClause([late-D, \+courseHour-C-D-5]), fail.
 defineLateD.
 
-defineNoLateD:- day(D), writeClause([\+late-D]), fail.
+defineNoLateD:- writeClause([\+late-1]), fail.
 defineNoLateD.
-
-%% eachMatchExactlyOneR:- team(T), team(S), T \= S, findall(match-T-S-R, round(R), Home),
-%%                         findall(match-S-T-R, round(R), Away), union(Home, Away, Lits),
-%%                         exactly(1, Lits), fail.
-%% eachMatchExactlyOneR.
-
-
-%% eachTexactlyOneS:- team(T), round(R), findall(match-T-S-R, matchOfT(T, T-S), Home),
-%%                         findall(match-S-T-R, matchOfT(T, S-T), Away), union(Home, Away, Lits),
-%%                         exactly(1, Lits), fail.
-%% eachTexactlyOneS.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% show the solution. Here M contains the literals that are true in the model:
@@ -168,11 +156,11 @@ main:-  initClauseGeneration,
 	write('Generated '), write(C), write(' clauses over '), write(N), write(' variables. '),nl,
 	shell('cat header clauses > infile.cnf',_),
 	write('Calling solver....'), nl, 
-	shell('picosat -v -o model infile.cnf', Result),  % if sat: Result=10; if unsat: Result=20.
+	shell('picosat -a 1 -v -o model infile.cnf', Result),  % if sat: Result=10; if unsat: Result=20.
 	treatResult(Result),!.
 
 treatResult(20):- write('Unsatisfiable'), nl, halt.
-treatResult(10):- write('Solution found: '), nl, see(model), symbolicModel(M), seen, displaySol(M), nl,nl,halt.
+treatResult(10):- write('Solution found: '), nl, see(model), symbolicModel(M), seen, displaySol(M), nl,nl, main.
 
 initClauseGeneration:-  %initialize all info about variables and clauses:
     retractall(numClauses(   _)), 
